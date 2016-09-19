@@ -1,5 +1,5 @@
-﻿using Akka.Actor;
-using MargieBot.Models;
+﻿using System.Linq;
+using Akka.Actor;
 
 namespace Mentorbot.Executable.Actors
 {
@@ -12,9 +12,9 @@ namespace Mentorbot.Executable.Actors
 
         private void Initialise()
         {
-            Receive<ResponseContext>(r =>
+            Receive<AugmentedMessage>(m =>
             {
-                Sender.Tell(new ContextMessage("Received", r));
+                Sender.Tell(new ResponseMessage(string.Join("\r\n\r\n", m.Analysis.Select(a => a.AnalyzerId + ":\r\n" + a.Result.ToString())), m));
             });
         }
     }

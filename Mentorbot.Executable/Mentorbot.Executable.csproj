@@ -45,6 +45,9 @@
       <HintPath>..\packages\MargieBot.1.1.4.1\lib\net45\MargieBot.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.ProjectOxford.Linguistics">
+      <HintPath>..\libs\Microsoft.ProjectOxford.Linguistics.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -67,6 +70,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actors\Augmentation.cs" />
     <Compile Include="Actors\Conversation.cs" />
     <Compile Include="Actors\Slackbot.cs" />
     <Compile Include="DMResponder.cs" />
@@ -79,6 +83,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CognitiveServicesApiKey.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="SlackApiKey.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.Actor;
-using Akka.Actor.Dsl;
 using MargieBot;
 using MargieBot.Models;
 
@@ -15,6 +14,8 @@ namespace Mentorbot.Executable.Actors
 
         private ConcurrentDictionary<string, IActorRef> conversations = new ConcurrentDictionary<string, IActorRef>();
 
+        private IActorRef augmenter;
+
         public Slackbot()
         {
             Initialise();
@@ -22,6 +23,8 @@ namespace Mentorbot.Executable.Actors
 
         private void Initialise()
         {
+            this.augmenter = Context.ActorOf<Augmentation>();
+
             Receive<StartSlackbot>(i =>
             {
                 CreateBot().PipeTo(Self);
@@ -46,16 +49,21 @@ namespace Mentorbot.Executable.Actors
             {
                 Self.Tell(new StartTyping(r.Message.ChatHub));
 
-                var conversation = this.conversations.GetOrAdd(
-                                                        r.Message.ChatHub.ID,
-                                                        (s) => Context.ActorOf(Props.Create<Conversation>(s)));
-
-                conversation.Tell(r);
+                this.augmenter.Tell(r);
             });
 
-            Receive<ContextMessage>(r =>
+            Receive<AugmentedMessage>(m =>
             {
-                this.bot.Say(new BotMessage { Text = r.Message, ChatHub = r.Context.Message.ChatHub }).PipeTo(Self);
+                var conversation = this.conversations.GetOrAdd(
+                                                        m.Context.Message.ChatHub.ID,
+                                                        (s) => Context.ActorOf(Props.Create<Conversation>(s)));
+
+                conversation.Tell(m);
+            });
+
+            Receive<ResponseMessage>(r =>
+            {
+                this.bot.Say(new BotMessage { Text = r.Message, ChatHub = r.AugmentedMessage.Context.Message.ChatHub }).PipeTo(Self);
             });
         }
 
@@ -87,16 +95,16 @@ namespace Mentorbot.Executable.Actors
         public SlackChatHub Hub { get; }
     }
 
-    class ContextMessage
+    class ResponseMessage
     {
-        public ContextMessage(string message, ResponseContext context)
+        public ResponseMessage(string message, AugmentedMessage inputMessage)
         {
             this.Message = message;
-            this.Context = context;
+            this.AugmentedMessage = inputMessage;
         }
 
         public string Message { get; }
 
-        public ResponseContext Context { get; }
+        public AugmentedMessage AugmentedMessage { get; }
     }
 }
