@@ -1,7 +1,6 @@
 ﻿using System;
 using Akka.Actor;
 using Mentorbot.Executable.Actors;
-using Mentorbot.Executable.Messages;
 
 namespace Mentorbot.Executable
 {
@@ -12,7 +11,7 @@ namespace Mentorbot.Executable
             var system = ActorSystem.Create("Mentorbot");
 
             var slackbot = system.ActorOf<Slackbot>("slackbot");
-            slackbot.Tell(SlackbotInstruction.Start);
+            slackbot.Tell(new StartSlackbot());
 
             Console.ReadLine();
         }
